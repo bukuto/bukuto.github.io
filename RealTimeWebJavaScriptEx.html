@@ -1,0 +1,219 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <title>Redlands Emergencies</title>
+
+    <!--
+    change the theme color to see the themes in action:
+
+    https://<js-api>/esri/themes/<color>/main.css
+
+    * light
+    * dark
+   -->
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.19/esri/themes/light/main.css"
+    />
+
+    <style>
+      html,
+      body {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+        background-color:#f0f0f0;
+      }
+      #headerDiv {
+        position: absolute;
+        padding: 0;
+        margin: 5px;
+        height: 7%;
+        width:99%;
+        background: #d2d7d3;
+        text-align: center;
+        font-size: 30px;
+        font-family: "Simplex";
+        font-weight: bold;
+        border:1px solid #b4b4b4;
+        line-height:50px;
+      }
+      .topnav a:hover {
+        background-color: #ddd;
+        color: black;
+      }
+        .topnav {
+        position:absolute;
+        top:0;
+        right:20px;
+        font-size: 14px;
+        font-family: "Simplex";
+        }
+      #viewDiv {
+        position: absolute;
+        padding: 0;
+        margin: 3px;
+        height: 90%;
+        left: 0;
+        right: 15%;
+        bottom: 7px;
+        
+      }
+      #basemapDiv {
+        position: absolute;
+        padding: 0;
+        margin: 2px;
+        background: #d2d7d3;
+        height: 91%;
+        right: 1px;
+        width: 15%;
+        bottom: 2px;
+        
+        border:1px solid #b4b4b4;
+      }
+    </style>
+
+    <script src="https://js.arcgis.com/4.19/"></script>
+    <script>
+        require([
+          "esri/Map",
+          "esri/views/MapView",
+          "esri/widgets/Search",
+          "esri/widgets/BasemapGallery",
+          "esri/widgets/Legend",
+          "esri/layers/FeatureLayer",
+          "esri/widgets/ScaleBar",
+          "esri/widgets/LayerList",
+          "esri/layers/StreamLayer",
+          "esri/widgets/Track"
+        ], function (
+          Map,
+          MapView,
+          Search,
+          BasemapGallery,
+          Legend,
+          FeatureLayer,
+          ScaleBar,
+          LayerList,
+          StreamLayer,
+          Track
+        ) {
+            //µ×Í¼
+            var map = new Map({
+                basemap: "streets-navigation-vector"
+            });
+
+            var view = new MapView({
+                map: map,
+                container: "viewDiv",
+                center:[-117.202159,34.06366],
+                zoom:12
+            });
+
+            //ÒªËØÍ¼²ã
+            var Emergency_Facilities = new FeatureLayer({
+                url:
+                  "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/EmergencyFacilities/FeatureServer/0"
+            });
+            var Police = new FeatureLayer({
+                url:
+                  "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/PoliceAGOL/FeatureServer/0"
+            });
+            var Ambulances = new FeatureLayer({
+                url:
+                  "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/AmbulancesAGOL/FeatureServer/0"
+            });
+            var Dispatch = new FeatureLayer({
+                url:
+                  "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/Dispatch/FeatureServer/0"
+            });
+            var Cameras = new FeatureLayer({
+                url:
+                  "https://services2.arcgis.com/No7KRrFgpO516cMP/arcgis/rest/services/CalTrans_Cameras_Redlands/FeatureServer/0"
+            });
+        
+        
+            map.layers.addMany([Emergency_Facilities, Police, Ambulances, Dispatch, Cameras]);
+        
+            //Á÷·þÎñ
+          const streamLayer = new StreamLayer({
+              url: "https://geoeventsample2.esri.com/server/rest/services/Helicoper/StreamServer",
+          });
+            map.add(streamLayer);
+        
+            //µ×Í¼¿â
+            var basemapGallery = new BasemapGallery({
+                view: view,
+                container: basemapDiv
+            });
+            // Add widget to the top right corner of the view
+            view.ui.add(basemapGallery, {
+                position: "right"
+            });
+
+            //ËÑË÷¿ò
+            var search = new Search({
+                view: view
+            });
+
+            view.ui.add(search, "top-right");
+
+
+            //Í¼Àý
+          const legend = new Legend({
+              view: view,
+              title: "Legend"
+          });
+
+            view.ui.add(legend, "bottom-left");
+
+            //±ÈÀý³ß
+            var scaleBar = new ScaleBar({
+                view: view,
+                unit: "dual" // The scale bar displays both metric and non-metric units.
+                //style:"line"  When unit is set to dual, the style will always be line.
+            });
+
+            // Add the widget to the bottom left corner of the view
+            view.ui.add(scaleBar, {
+                position: "bottom-right"
+            });
+
+            //Í¼²ã¿ØÖÆ
+            view.when(function () {
+                var layerList = new LayerList({
+                    view: view
+                });
+
+                // Add widget to the top right corner of the view
+                view.ui.add(layerList, "top-right");
+            });
+            //×·×Ù
+            var trackWidget = new Track({
+                view: view
+            });
+
+            view.ui.add(trackWidget, "top-left");
+        });
+    </script>
+  </head>
+
+  <body>
+    <div id="headerDiv">Redlands Emergencies
+        <div class="topnav">
+        <a href="#">RedlandsTwi</a>
+        <a href="#">Login</a>
+        <a href="#">About</a>
+        </div>
+    </div>
+
+    <div id="viewDiv"></div>
+    <div id="basemapDiv"></div>
+  </body>
+</html>
